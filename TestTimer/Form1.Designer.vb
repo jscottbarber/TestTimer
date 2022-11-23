@@ -39,6 +39,7 @@ Partial Class Form1
         Me.StatusBar = New System.Windows.Forms.ToolStripStatusLabel()
         Me.ToolStripStatusLabel1 = New System.Windows.Forms.ToolStripStatusLabel()
         Me.StatusAdvance = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.ResetTestToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.MenuStrip1.SuspendLayout()
         Me.StatusStrip1.SuspendLayout()
         Me.SuspendLayout()
@@ -56,23 +57,23 @@ Partial Class Form1
         'MenuStrip1
         '
         Me.MenuStrip1.ImageScalingSize = New System.Drawing.Size(32, 32)
-        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.TestParamsToolStripMenuItem})
+        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.TestParamsToolStripMenuItem, Me.ResetTestToolStripMenuItem})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Size = New System.Drawing.Size(800, 40)
+        Me.MenuStrip1.Size = New System.Drawing.Size(800, 42)
         Me.MenuStrip1.TabIndex = 1
         Me.MenuStrip1.Text = "MenuStrip1"
         '
         'FileToolStripMenuItem
         '
         Me.FileToolStripMenuItem.Name = "FileToolStripMenuItem"
-        Me.FileToolStripMenuItem.Size = New System.Drawing.Size(71, 36)
+        Me.FileToolStripMenuItem.Size = New System.Drawing.Size(71, 38)
         Me.FileToolStripMenuItem.Text = "Exit"
         '
         'TestParamsToolStripMenuItem
         '
         Me.TestParamsToolStripMenuItem.Name = "TestParamsToolStripMenuItem"
-        Me.TestParamsToolStripMenuItem.Size = New System.Drawing.Size(200, 36)
+        Me.TestParamsToolStripMenuItem.Size = New System.Drawing.Size(200, 38)
         Me.TestParamsToolStripMenuItem.Text = "Test Parameters"
         '
         'lblQuestionTime
@@ -172,7 +173,7 @@ Partial Class Form1
         'ToolStripStatusLabel1
         '
         Me.ToolStripStatusLabel1.Name = "ToolStripStatusLabel1"
-        Me.ToolStripStatusLabel1.Size = New System.Drawing.Size(448, 32)
+        Me.ToolStripStatusLabel1.Size = New System.Drawing.Size(510, 32)
         Me.ToolStripStatusLabel1.Spring = True
         '
         'StatusAdvance
@@ -180,6 +181,12 @@ Partial Class Form1
         Me.StatusAdvance.Name = "StatusAdvance"
         Me.StatusAdvance.Size = New System.Drawing.Size(163, 32)
         Me.StatusAdvance.Text = "Auto Advance"
+        '
+        'ResetTestToolStripMenuItem
+        '
+        Me.ResetTestToolStripMenuItem.Name = "ResetTestToolStripMenuItem"
+        Me.ResetTestToolStripMenuItem.Size = New System.Drawing.Size(140, 38)
+        Me.ResetTestToolStripMenuItem.Text = "Reset Test"
         '
         'Form1
         '
@@ -225,4 +232,5 @@ Partial Class Form1
     Friend WithEvents StatusBar As ToolStripStatusLabel
     Friend WithEvents ToolStripStatusLabel1 As ToolStripStatusLabel
     Friend WithEvents StatusAdvance As ToolStripStatusLabel
+    Friend WithEvents ResetTestToolStripMenuItem As ToolStripMenuItem
 End Class

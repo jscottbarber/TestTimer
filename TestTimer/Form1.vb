@@ -75,8 +75,8 @@
     End Property
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load  'Form Initialization
-        Dim InitialQuesitonCount As Integer = 12 '50 Questions
-        Dim InitialTestTime As Long = 60 '1320 seconds (22 minutes)
+        Dim InitialQuesitonCount As Integer = 50 '50 Questions
+        Dim InitialTestTime As Long = 1320 '1320 seconds (22 minutes)
         AutoAdvanceQuestion = True
 
         ResetTest(InitialQuesitonCount, InitialTestTime, AutoAdvanceQuestion)
@@ -177,11 +177,13 @@
             If ProgBar.Maximum >= QuestionTimeLeft Then
                 ProgBar.Value = QuestionTimeLeft
                 SendMessage(ProgBar.Handle, 1040, 1, 0)  'wparam: 1=green, 2=red, 3=yellow
+                lblQuestionTime.BackColor = System.Drawing.SystemColors.HotTrack
             End If
         Else
             ProgBar.Maximum = TestTimeLeft / QuestionsLeft
             ProgBar.Value = ProgBar.Maximum
             SendMessage(ProgBar.Handle, 1040, 2, 0)  'wparam: 1=green, 2=red, 3=yellow
+            lblQuestionTime.BackColor = System.Drawing.Color.Red
         End If
     End Sub
 
@@ -269,7 +271,7 @@
             QL = (QuestionTotal + 1) - QuestionNum
         End If
         If QL < 0 Then
-            MsgBox("Error: Current Question Number cannot be greater than Question Total", MsgBoxStyle.Critical And MsgBoxStyle.OkOnly, "Fatal Error")
+            MsgBox("Error: Current Question Number cannot be greater than Question Total", MsgBoxStyle.Critical + MsgBoxStyle.OkOnly, "Fatal Error")
             StopTimerAndEndTest()
             QL = 0
         End If
@@ -358,5 +360,20 @@
         x = (Me.Width - ProgBar.Width) / 2
         y = ProgBar.Top
         ProgBar.Location = New Point(x, y)
+    End Sub
+
+    Private Sub ResetTestToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ResetTestToolStripMenuItem.Click
+        Dim Response As MsgBoxResult
+
+        If Timer1.Enabled Then
+            Response = MsgBox("Cancel this test timer?", vbYesNo + vbQuestion, "Confirm Cancel")
+            If Response = MsgBoxResult.Yes Then
+                Timer1.Stop()
+                ResetTest(QuestionTotal, TestTime, AutoAdvanceQuestion)
+            End If
+        Else
+            MsgBox("Sorry, There is no active timer to reset.", vbOKOnly + vbInformation, "Reset Error")
+        End If
+
     End Sub
 End Class
