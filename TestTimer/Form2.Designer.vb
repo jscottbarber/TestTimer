@@ -30,6 +30,8 @@ Partial Class Form2
         Me.Label3 = New System.Windows.Forms.Label()
         Me.btnOk = New System.Windows.Forms.Button()
         Me.btnCancel = New System.Windows.Forms.Button()
+        Me.Label4 = New System.Windows.Forms.Label()
+        Me.chkAutoAdvance = New System.Windows.Forms.CheckBox()
         Me.SuspendLayout()
         '
         'Label1
@@ -97,7 +99,7 @@ Partial Class Form2
         '
         'btnOk
         '
-        Me.btnOk.Location = New System.Drawing.Point(82, 238)
+        Me.btnOk.Location = New System.Drawing.Point(98, 308)
         Me.btnOk.Name = "btnOk"
         Me.btnOk.Size = New System.Drawing.Size(150, 46)
         Me.btnOk.TabIndex = 6
@@ -106,18 +108,40 @@ Partial Class Form2
         '
         'btnCancel
         '
-        Me.btnCancel.Location = New System.Drawing.Point(329, 238)
+        Me.btnCancel.Location = New System.Drawing.Point(345, 308)
         Me.btnCancel.Name = "btnCancel"
         Me.btnCancel.Size = New System.Drawing.Size(150, 46)
         Me.btnCancel.TabIndex = 7
         Me.btnCancel.Text = "Cancel"
         Me.btnCancel.UseVisualStyleBackColor = True
         '
+        'Label4
+        '
+        Me.Label4.AutoSize = True
+        Me.Label4.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        Me.Label4.Location = New System.Drawing.Point(12, 224)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(371, 45)
+        Me.Label4.TabIndex = 8
+        Me.Label4.Text = "Auto Advance Questions"
+        Me.Label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        '
+        'chkAutoAdvance
+        '
+        Me.chkAutoAdvance.AutoSize = True
+        Me.chkAutoAdvance.Location = New System.Drawing.Point(419, 233)
+        Me.chkAutoAdvance.Name = "chkAutoAdvance"
+        Me.chkAutoAdvance.Size = New System.Drawing.Size(28, 27)
+        Me.chkAutoAdvance.TabIndex = 9
+        Me.chkAutoAdvance.UseVisualStyleBackColor = True
+        '
         'Form2
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(13.0!, 32.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(582, 314)
+        Me.ClientSize = New System.Drawing.Size(582, 388)
+        Me.Controls.Add(Me.chkAutoAdvance)
+        Me.Controls.Add(Me.Label4)
         Me.Controls.Add(Me.btnCancel)
         Me.Controls.Add(Me.btnOk)
         Me.Controls.Add(Me.Label3)
@@ -127,6 +151,7 @@ Partial Class Form2
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Label1)
         Me.Name = "Form2"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Test Parameters"
         Me.ResumeLayout(False)
         Me.PerformLayout()
@@ -141,4 +166,6 @@ Partial Class Form2
     Friend WithEvents Label3 As Label
     Friend WithEvents btnOk As Button
     Friend WithEvents btnCancel As Button
+    Friend WithEvents Label4 As Label
+    Friend WithEvents chkAutoAdvance As CheckBox
 End Class

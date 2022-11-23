@@ -10,6 +10,7 @@
 
     Dim TestTimeLeft As Long  'Total Time Left, in Seconds
     Dim QuestionTimeLeft As Integer   'Time left for a single question, in seconds
+    Dim FinalQuestionTimeSet As Boolean
 
     Public Enum TestStatusEnum
         Initialized
@@ -78,10 +79,10 @@
         Dim InitialTestTime As Long = 60 '1320 seconds (22 minutes)
         AutoAdvanceQuestion = True
 
-        ResetTest(InitialQuesitonCount, InitialTestTime)
+        ResetTest(InitialQuesitonCount, InitialTestTime, AutoAdvanceQuestion)
     End Sub
 
-    Friend Sub ResetTest(ByVal QuestionCount As Integer, ByVal TotalTimeSec As Long)
+    Friend Sub ResetTest(ByVal QuestionCount As Integer, ByVal TotalTimeSec As Long, ByVal AAQuestion As Boolean)
         If Not Timer1.Enabled Then
             QuestionNum = 1
             QuestionTotal = QuestionCount
@@ -90,11 +91,11 @@
             ProgBar.Step = 1
             TestTime = TotalTimeSec
             TestTimeLeft = TestTime  'TestTimeLeft only set here and in Timer1_Tick
+            AutoAdvanceQuestion = AAQuestion
             TestStatus = TestStatusEnum.Initialized
 
             RefreshTestTimer()
             RefreshQuestionCount()
-            'DetermineQuestionTimeLeft() 'Now done in RefreshQuestionTimer
             ResetQuestionTimer()
             RefreshButtonText(TestStatus)
         End If
@@ -105,24 +106,35 @@
         Select Case TestState
             Case TestStatusEnum.Initialized
                 btnMain.Text = "Start Test"
+                StatusBar.Text = "Status: Test Initialized"
             Case TestStatusEnum.FirstQuestion
                 btnMain.Text = "Next Question"
                 If QuestionTotal > 1 And QuestionNum > 1 Then
                     btnSubtractQuestion.Enabled = True
                 End If
+                StatusBar.Text = "Status: First Question"
             Case TestStatusEnum.NextQuestion
                 btnMain.Text = "Next Question"
                 If QuestionTotal > 1 And QuestionNum > 1 Then
                     btnSubtractQuestion.Enabled = True
                 End If
+                StatusBar.Text = "Status: " + QuestionsLeft.ToString + " Questions Remaining"
             Case TestStatusEnum.LastQuestion
                 btnMain.Text = "End Test/Stop Timer"
                 If QuestionTotal > 1 And QuestionNum > 1 Then
                     btnSubtractQuestion.Enabled = True
                 End If
+                StatusBar.Text = "Status: Final Question"
             Case TestStatusEnum.EndTest
                 btnMain.Text = "Reset Timer"
+                StatusBar.Text = "Status: Test Completed"
         End Select
+
+        If AutoAdvanceQuestion Then
+            StatusAdvance.Text = "Auto Advance: ON"
+        Else
+            StatusAdvance.Text = "Auto Advance: OFF"
+        End If
     End Sub
 
     Private Sub TestParamsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TestParamsToolStripMenuItem.Click
@@ -143,32 +155,34 @@
     Private Sub RefreshQuestionTimer()
         Dim tsLeft As TimeSpan
 
-        If AutoAdvanceQuestion Then
+        tsLeft = New TimeSpan(0, 0, QuestionTimeLeft)
+        lblQuestionTime.Text = tsLeft.ToString()
+        UpdateProgressBar()
 
-            If QuestionsLeft > 0 Then
-                'This should be TotalTimeLeft / QuestionsLeft
-                tsLeft = New TimeSpan(0, 0, QuestionTimeLeft)
-                lblQuestionTime.Text = tsLeft.ToString()
+    End Sub
+
+    Private Sub UpdateProgressBar()
+        ProgBar.Width = lblQuestionTime.Width
+
+        If QuestionTimeLeft >= 0 Then
+            If TestStatus = TestStatusEnum.LastQuestion Then
+                If Not FinalQuestionTimeSet Then
+                    FinalQuestionTimeSet = True
+                    ProgBar.Maximum = TestTimeLeft
+                End If
+            Else
+                FinalQuestionTimeSet = False
+                ProgBar.Maximum = TestTimeLeft / QuestionsLeft
+            End If
+            If ProgBar.Maximum >= QuestionTimeLeft Then
+                ProgBar.Value = QuestionTimeLeft
+                SendMessage(ProgBar.Handle, 1040, 1, 0)  'wparam: 1=green, 2=red, 3=yellow
             End If
         Else
-            If QuestionsLeft > 0 Then
-                tsLeft = New TimeSpan(0, 0, QuestionTimeLeft)
-                lblQuestionTime.Text = tsLeft.ToString()
-                If QuestionTimeLeft >= 0 Then
-                    'ProgBar.Maximum = TestTimeLeft / QuestionsLeft
-                    'If ProgBar.Maximum >= QuestionTimeLeft Then
-                    '    ProgBar.Value = QuestionTimeLeft
-                    '    SendMessage(ProgBar.Handle, 1040, 1, 0)  'wParam: 1=Green, 2=Red, 3=Yellow
-                    'End If
-                Else
-                    'ProgBar.Maximum = TestTimeLeft / QuestionsLeft
-                    'ProgBar.Value = ProgBar.Maximum
-                    'SendMessage(ProgBar.Handle, 1040, 2, 0)  'wParam: 1=Green, 2=Red, 3=Yellow
-                End If
-            End If
+            ProgBar.Maximum = TestTimeLeft / QuestionsLeft
+            ProgBar.Value = ProgBar.Maximum
+            SendMessage(ProgBar.Handle, 1040, 2, 0)  'wparam: 1=green, 2=red, 3=yellow
         End If
-
-
     End Sub
 
     Private Sub RefreshTestTimer()
@@ -182,16 +196,30 @@
 
     Private Sub RefreshQuestionCount()
         lblQuestions.Text = CStr(QuestionNum) + " of " + CStr(QuestionTotal)
-        'QuestionsLeft = (QuestionTotal + 1) - QuestionNum  'Add one to total because when QuestionTotal = QuestionNum, they are working on the final question
-        'RefreshQuestionTimer()
-        'If QuestionsLeft > 0 And TestTimeLeft > 0 Then
-        'QuestionsLeft = QuestionsLeft - 1  'Adjust QuestionsLeft
-        'QuestionTimeLeft = TestTimeLeft / QuestionsLeft
-        'RefreshQuestionTimer()
-        'Else
-        'Timer1.Stop()
-        'End If
     End Sub
+
+    Private Function UpdateStatusByQuestionNum() As TestStatusEnum
+        ' NOTE: DO NOT add call to DeterminQuestionsLeft() in this function, it will result in a recursive loop
+        Dim TS As TestStatusEnum
+
+        If QuestionNum = 1 Then
+            If Timer1.Enabled Then
+                TS = TestStatusEnum.FirstQuestion
+            Else
+                TS = TestStatusEnum.Initialized
+            End If
+        ElseIf QuestionNum = QuestionTotal Then
+            If Timer1.Enabled Then
+                TS = TestStatusEnum.LastQuestion
+            Else
+                TS = TestStatusEnum.EndTest
+            End If
+        Else
+            TS = TestStatusEnum.NextQuestion
+        End If
+
+        Return TS
+    End Function
 
     Private Sub AdvanceQuestionNum()
         If QuestionNum < QuestionTotal Then
@@ -199,6 +227,7 @@
             QuestionsLeft = DetermineQuestionsLeft()
             RefreshQuestionCount()
         End If
+        TestStatus = UpdateStatusByQuestionNum()
     End Sub
 
     Private Sub ReduceQuestionNum()
@@ -207,6 +236,7 @@
             QuestionsLeft = DetermineQuestionsLeft()
             RefreshQuestionCount()
         End If
+        TestStatus = UpdateStatusByQuestionNum()
     End Sub
 
     Private Function DetermineQuestionTimeLeft() As Integer
@@ -221,13 +251,19 @@
     End Function
 
     Private Sub StopTimerAndEndTest()
-        UpdateStatusByEvent(TestStatusEnum.LastQuestion) 'Ends Test and stops timer
+        Timer1.Stop()
+        TestStatus = TestStatusEnum.EndTest
+        RefreshButtonText(TestStatus)
+        RefreshQuestionCount()
+        ResetQuestionTimer()
     End Sub
 
     Private Function DetermineQuestionsLeft() As Integer
         Dim QL As Integer
 
-        If TestStatus = TestStatusEnum.EndTest Then
+        TestStatus = UpdateStatusByQuestionNum()  'Just in case the TestStatus is not up to date
+
+        If TestStatus = TestStatusEnum.EndTest Then 'Need to account for TestStatus because QuestionNum = QuestionTotal even after the test is complete (timer is disabled)
             QL = 0
         Else
             QL = (QuestionTotal + 1) - QuestionNum
@@ -248,7 +284,7 @@
                 MsgBox("Question Time Remaining Should Not Be Less Than Zero", vbOKOnly + vbCritical, "Logic Error")
                 RefreshQuestionTimer()
             ElseIf QuestionTimeLeft = 0 Then
-                AdvanceQuestionNum()
+                AdvanceQuestionNum()  'This also updates Status
                 ResetQuestionTimer()
             Else    'QuestionTimeLeft > 0
                 If TestStatus = TestStatusEnum.LastQuestion Then
@@ -273,103 +309,39 @@
         If QuestionsLeft > 0 And TestTimeLeft > 0 Then
             TestTimeLeft -= 1
             RefreshTestTimer()
-            'QuestionTimeLeft -= 1
-            'RefreshQuestionTimer()
             ReduceQuestionTime()
         Else
             StopTimerAndEndTest()
         End If
+
         RefreshButtonText(TestStatus)
-
-        'If TestStatus = TestStatusEnum.FirstQuestion Then
-        'ElseIf TestStatus = TestStatusEnum.NextQuestion Then
-        'ElseIf TestStatus = TestStatusEnum.LastQuestion Then
-        'End If
-
-        'If TestTimeLeft >= 0 Then
-        '    If QuestionTimeLeft > 1 Then
-        '        QuestionTimeLeft -= 1
-        '        RefreshQuestionTimer()
-        '    Else
-        '        Timer1.Stop()  'temporarily stop the timer to refresh ui
-        '        If QuestionTotal > QuestionNum Then
-        '            QuestionNum += 1
-        '            RefreshQuestionCount()
-        '            Timer1.Start()
-        '        Else
-        '            QuestionTimeLeft = 0
-        '        End If
-        '        RefreshQuestionTimer()
-        '    End If
-        '    TestTimeLeft -= 1
-        '    RefreshTestTimer()
-        'Else
-        '    Timer1.Stop()
-        'End If
-    End Sub
-
-    Private Sub UpdateStatusByEvent(CurrentTestState As TestStatusEnum)
-        ' Uses the current status to determine what status should be set next when the main button is clicked
-        Dim NewTestState As TestStatusEnum = TestStatusEnum.Initialized
-
-        Select Case CurrentTestState  'Initial Status when function is called
-            Case TestStatusEnum.Initialized 'User Starting the test
-                Timer1.Start()
-                If QuestionNum = QuestionTotal Then
-                    NewTestState = TestStatusEnum.LastQuestion
-                Else
-                    QuestionNum = 1
-                    NewTestState = TestStatusEnum.FirstQuestion
-                End If
-            Case TestStatusEnum.FirstQuestion
-                If QuestionNum = QuestionTotal Then
-                    NewTestState = TestStatusEnum.LastQuestion
-                Else
-                    QuestionNum += 1
-                    If QuestionNum = QuestionTotal Then
-                        NewTestState = TestStatusEnum.LastQuestion
-                    Else
-                        NewTestState = TestStatusEnum.NextQuestion
-                    End If
-                End If
-            Case TestStatusEnum.NextQuestion
-                If QuestionNum = QuestionTotal Then
-                    NewTestState = TestStatusEnum.LastQuestion
-                Else
-                    QuestionNum += 1
-                    If QuestionNum = QuestionTotal Then
-                        NewTestState = TestStatusEnum.LastQuestion
-                    Else
-                        NewTestState = TestStatusEnum.NextQuestion
-                    End If
-                End If
-            Case TestStatusEnum.LastQuestion
-                Timer1.Stop()
-                NewTestState = TestStatusEnum.EndTest
-            Case TestStatusEnum.EndTest
-                ResetTest(QuestionTotal, TestTime)
-                Exit Sub
-        End Select
-        TestStatus = NewTestState
-        RefreshButtonText(TestStatus)
-        RefreshQuestionCount()
-        ResetQuestionTimer()
+        RefreshQuestionTimer()
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles btnMain.Click
-        UpdateStatusByEvent(TestStatus)
+        'UpdateStatusByEvent(TestStatus)
+        Select Case TestStatus
+            Case TestStatusEnum.Initialized
+                TestStatus = TestStatusEnum.FirstQuestion
+                Timer1.Start()
+            Case TestStatusEnum.LastQuestion
+                Timer1.Stop()
+                TestStatus = TestStatusEnum.EndTest
+            Case TestStatusEnum.EndTest
+                ResetTest(QuestionTotal, TestTime, AutoAdvanceQuestion)
+                Exit Sub
+            Case Else  'FirstQuestion and NextQuestion
+                If QuestionNum < QuestionTotal Then
+                    AdvanceQuestionNum()  'This also updates the status
+                End If
+        End Select
+        RefreshButtonText(TestStatus)
+        ResetQuestionTimer()
     End Sub
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles btnSubtractQuestion.Click
         If QuestionNum > 1 Then
-            ReduceQuestionNum()
-            If QuestionNum = 1 Then
-                TestStatus = TestStatusEnum.FirstQuestion
-            ElseIf QuestionNum = QuestionTotal Then
-                TestStatus = TestStatusEnum.LastQuestion
-            Else
-                TestStatus = TestStatusEnum.NextQuestion
-            End If
+            ReduceQuestionNum() 'This also updates the status
             RefreshButtonText(TestStatus)
             ResetQuestionTimer()
         End If
@@ -382,6 +354,7 @@
         y = lblQuestionTime.Top
         lblQuestionTime.Location = New Point(x, y)
 
+        ProgBar.Width = lblQuestionTime.Width
         x = (Me.Width - ProgBar.Width) / 2
         y = ProgBar.Top
         ProgBar.Location = New Point(x, y)

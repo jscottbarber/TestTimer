@@ -35,7 +35,12 @@ Partial Class Form1
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.ProgBar = New System.Windows.Forms.ProgressBar()
+        Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
+        Me.StatusBar = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.ToolStripStatusLabel1 = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.StatusAdvance = New System.Windows.Forms.ToolStripStatusLabel()
         Me.MenuStrip1.SuspendLayout()
+        Me.StatusStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
         'btnMain
@@ -148,11 +153,40 @@ Partial Class Form1
         Me.ProgBar.Size = New System.Drawing.Size(595, 46)
         Me.ProgBar.TabIndex = 9
         '
+        'StatusStrip1
+        '
+        Me.StatusStrip1.ImageScalingSize = New System.Drawing.Size(32, 32)
+        Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.StatusBar, Me.ToolStripStatusLabel1, Me.StatusAdvance})
+        Me.StatusStrip1.Location = New System.Drawing.Point(0, 518)
+        Me.StatusStrip1.Name = "StatusStrip1"
+        Me.StatusStrip1.Size = New System.Drawing.Size(800, 42)
+        Me.StatusStrip1.TabIndex = 10
+        Me.StatusStrip1.Text = "StatusStrip1"
+        '
+        'StatusBar
+        '
+        Me.StatusBar.Name = "StatusBar"
+        Me.StatusBar.Size = New System.Drawing.Size(112, 32)
+        Me.StatusBar.Text = "StatusBar"
+        '
+        'ToolStripStatusLabel1
+        '
+        Me.ToolStripStatusLabel1.Name = "ToolStripStatusLabel1"
+        Me.ToolStripStatusLabel1.Size = New System.Drawing.Size(448, 32)
+        Me.ToolStripStatusLabel1.Spring = True
+        '
+        'StatusAdvance
+        '
+        Me.StatusAdvance.Name = "StatusAdvance"
+        Me.StatusAdvance.Size = New System.Drawing.Size(163, 32)
+        Me.StatusAdvance.Text = "Auto Advance"
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(13.0!, 32.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(800, 512)
+        Me.ClientSize = New System.Drawing.Size(800, 560)
+        Me.Controls.Add(Me.StatusStrip1)
         Me.Controls.Add(Me.ProgBar)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Label1)
@@ -164,9 +198,12 @@ Partial Class Form1
         Me.Controls.Add(Me.MenuStrip1)
         Me.MainMenuStrip = Me.MenuStrip1
         Me.Name = "Form1"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Test Timer"
         Me.MenuStrip1.ResumeLayout(False)
         Me.MenuStrip1.PerformLayout()
+        Me.StatusStrip1.ResumeLayout(False)
+        Me.StatusStrip1.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -184,4 +221,8 @@ Partial Class Form1
     Friend WithEvents Label1 As Label
     Friend WithEvents Label2 As Label
     Friend WithEvents ProgBar As ProgressBar
+    Friend WithEvents StatusStrip1 As StatusStrip
+    Friend WithEvents StatusBar As ToolStripStatusLabel
+    Friend WithEvents ToolStripStatusLabel1 As ToolStripStatusLabel
+    Friend WithEvents StatusAdvance As ToolStripStatusLabel
 End Class
